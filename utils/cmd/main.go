@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"utils/pkg/db"
+	"utils/db"
 
 	"github.com/go-redis/redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
