@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: testpgmaster
     volumes:
       - pg:/var/lib/postgresql/data
-    port:
+    ports:
       - 5432:5432
     networks:
       - db_net
@@ -22,7 +22,7 @@ services:
       POSTGRES_PASSWORD: testpgreplica
     volumes:
       - pg:/var/lib/postgresql/data
-    port:
+    ports:
       - 5433:5432
     networks:
       - db_net
@@ -37,12 +37,11 @@ services:
     
   mongo:
     image: mongo
-    restarts: always
     ports:
       - 8081:8081
     environment:
-      - MONGO_INITDB_ROOT_USERNAME: testmongo
-      - MONGO_INITDB_ROOT_PASSWORD: testmongo
+      MONGO_INITDB_ROOT_USERNAME: testmongo
+      MONGO_INITDB_ROOT_PASSWORD: testmongo
     volumes:
       - mongo:/data/db
     networks:
@@ -50,7 +49,6 @@ services:
 
   cassandra:
     image: 'bitnami/cassandra:latest'
-    restarts: always
     ports:
       - "9042:9042"
     environment:
@@ -103,4 +101,4 @@ volumes:
   pg:
   mongo:
   redis_master:
-
+  cassandra:
