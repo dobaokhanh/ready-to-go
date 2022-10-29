@@ -1,0 +1,106 @@
+version: '3.1'
+
+services:
+  postgres-master:
+    container_name: postgres_master
+    image: postgres
+    environment:
+      POSTGRES_USER: testpgmaster
+      POSTGRES_PASSWORD: testpgmaster
+    volumes:
+      - pg:/var/lib/postgresql/data
+    port:
+      - 5432:5432
+    networks:
+      - db_net
+  
+  postgres-replica:
+    container_name: postgres_slave
+    image: postgres
+    environment:
+      POSTGRES_USER: testpgreplica
+      POSTGRES_PASSWORD: testpgreplica
+    volumes:
+      - pg:/var/lib/postgresql/data
+    port:
+      - 5433:5432
+    networks:
+      - db_net
+
+  oracledb:
+    image: oracleinanutshell/oracle-xe-11g:latest
+    ports:
+      - 1521:1521
+      - 5500:5500
+    networks:
+      - db_net
+    
+  mongo:
+    image: mongo
+    restarts: always
+    ports:
+      - 8081:8081
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME: testmongo
+      - MONGO_INITDB_ROOT_PASSWORD: testmongo
+    volumes:
+      - mongo:/data/db
+    networks:
+      - db_net
+
+  cassandra:
+    image: 'bitnami/cassandra:latest'
+    restarts: always
+    ports:
+      - "9042:9042"
+    environment:
+      - "MAX_HEAP_SIZE=256M"
+      - "HEAP_NEWSIZE=128M"
+    volumes:
+      - cassandra:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD", "cqlsh", "-u cassandra", "-p cassandra" ,"-e describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - db_net
+  
+  redis-master:
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=redis_master
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+      - REDIS_AOF_ENABLED=no
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_master:/bitnami
+    networks:
+      - db_net
+  
+  redis-replica:
+    image: 'bitnami/redis:latest'
+    ports:
+      - '6380:6379'
+    depends_on:
+      - redis-master
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-master
+      - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_MASTER_PASSWORD=redis_master
+      - REDIS_PASSWORD=redis_replica
+
+networks:
+  db_net:
+    driver: bridge
+    ipam:
+      driver: default
+
+volumes:
+  pg:
+  mongo:
+  redis_master:
+
