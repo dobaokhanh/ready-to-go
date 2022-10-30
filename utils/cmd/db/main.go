@@ -25,7 +25,7 @@ func main() {
 	defer mongoDB.Disconnect()
 	dbMG := mongoDB.GetConnection().(*mongo.Database)
 	testCollection := dbMG.Collection("test")
-	result, err := testCollection.InsertOne(context.Background(), bson.D{
+	result, _ := testCollection.InsertOne(context.Background(), bson.D{
 		{Key: "test2", Value: "1"},
 		{Key: "test2", Value: "2"},
 	})
